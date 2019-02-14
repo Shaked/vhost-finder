@@ -79,7 +79,7 @@ class VHostFinderCommand extends Command {
 
                 $ret = $client->request($input->getOption('httpMethod'), '/', $options);
                 if ($output->isVerbose()) {
-                    $message = 'Found: ' . $ret->getStatusCode();
+                    $message = 'Found: ' . $fullHost . ', ' . $ret->getStatusCode();
                     if ($output->isVeryVerbose()) {
                         $message .= PHP_EOL . ' Content: ' . (string) $ret->getBody()->getContents() . PHP_EOL . 'Headers: ' . var_export($ret->getHeaders(), true);
                     }
@@ -90,7 +90,7 @@ class VHostFinderCommand extends Command {
             } catch (RequestException $e) {
                 if ($output->isVerbose()) {
                     if ($e->hasResponse()) {
-                        $message = 'Not found: ' . $e->getResponse()->getStatusCode();
+                        $message = 'Not found: ' . $fullHost . ', ' . $e->getResponse()->getStatusCode();
                     } else {
                         $message = 'Could not connect host. Maybe something wrong with your proxy?';
                     }
