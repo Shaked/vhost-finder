@@ -2,7 +2,8 @@
     "require": {
         "symfony/process": "^4.2",
         "symfony/console": "^4.2",
-        "guzzlehttp/guzzle": "^6.3"
+        "guzzlehttp/guzzle": "^6.3",
+        "shaked/time": "dev-master#b7ddc0d1b3c888bc0b8649a1dbe4426c7abae27d"
     },
     "autoload": {
         "psr-4": {

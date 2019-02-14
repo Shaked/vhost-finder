@@ -4,6 +4,8 @@ namespace App;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use shaked\time\Duration;
+use shaked\time\Sleep;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,7 +23,8 @@ class VHostFinderCommand extends Command {
             ->addOption('headers', null, InputOption::VALUE_REQUIRED, 'Headers file')
             ->addOption('httpMethod', 'm', InputOption::VALUE_OPTIONAL, 'HTTP Method: HEAD, GET, POST, PUT, DELETE, OPTIONS', 'HEAD')
             ->addOption('ssl', null, InputOption::VALUE_OPTIONAL, 'Use SSL', true)
-            ->addOption('proxies', null, InputOption::VALUE_OPTIONAL, 'Proxy list file', null);
+            ->addOption('proxies', null, InputOption::VALUE_OPTIONAL, 'Proxy list file', null)
+            ->addOption('sleepBetweenRequests', null, InputOption::VALUE_OPTIONAL, 'Sleep between each request (milliseconds)', null);
     }
 
     /**
@@ -73,7 +76,7 @@ class VHostFinderCommand extends Command {
                         'Host'       => $fullHost,
                     ], $headers),
                 ], $extra);
-                var_dump($options);die;
+
                 $ret = $client->request($input->getOption('httpMethod'), '/', $options);
                 if ($output->isVerbose()) {
                     $message = 'Found: ' . $ret->getStatusCode();
@@ -110,6 +113,15 @@ class VHostFinderCommand extends Command {
                     ];
                 }
 
+            }
+
+            if ($input->getOption('sleepBetweenRequests')) {
+                $sleepBetweenRequests = $input->getOption('sleepBetweenRequests');
+                $milliseconds         = Duration::millisecond($sleepBetweenRequests);
+                if ($output->isVerbose()) {
+                    $output->writeln('Sleeping for ' . $milliseconds);
+                }
+                (new Sleep())->for($milliseconds);
             }
 
             $output->writeln($message);
