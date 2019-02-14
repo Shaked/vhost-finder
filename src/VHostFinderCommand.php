@@ -18,7 +18,7 @@ class VHostFinderCommand extends Command {
             ->addOption('host', null, InputOption::VALUE_REQUIRED, 'Host')
             ->addOption('ip', null, InputOption::VALUE_REQUIRED, 'Ip')
             ->addOption('wordlist', null, InputOption::VALUE_REQUIRED, 'Virtual host word list')
-            ->addOption('headers', null, InputOption::VALUE_REQUIRED, 'Headers comma separated', '')
+            ->addOption('headers', null, InputOption::VALUE_REQUIRED, 'Headers file')
             ->addOption('httpMethod', 'm', InputOption::VALUE_OPTIONAL, 'HTTP Method: HEAD, GET, POST, PUT, DELETE, OPTIONS', 'HEAD')
             ->addOption('ssl', null, InputOption::VALUE_OPTIONAL, 'Use SSL', true)
             ->addOption('proxies', null, InputOption::VALUE_OPTIONAL, 'Proxy list file', null);
@@ -40,10 +40,11 @@ class VHostFinderCommand extends Command {
         $userAgents = explodeNoEmpty("\n", file_get_contents(__DIR__ . '/../user-agents.txt'));
 
         $virtualHosts = explodeNoEmpty("\n", file_get_contents($wordlist));
-        $headers      = explodeNoEmpty(',', $input->getOption('headers'));
-        if (!$headers) {
-            $headers = [];
+        $headers      = [];
+        if ($input->getOption('headers')) {
+            $headers = json_decode(file_get_contents($input->getOption('headers')), true);
         }
+
         $scheme = $input->getOption('ssl') ? 'https://' : 'http://';
 
         $client = new Client([
@@ -72,7 +73,7 @@ class VHostFinderCommand extends Command {
                         'Host'       => $fullHost,
                     ], $headers),
                 ], $extra);
-
+                var_dump($options);die;
                 $ret = $client->request($input->getOption('httpMethod'), '/', $options);
                 if ($output->isVerbose()) {
                     $message = 'Found: ' . $ret->getStatusCode();
